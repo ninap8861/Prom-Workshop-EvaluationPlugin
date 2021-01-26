@@ -19,6 +19,7 @@ import org.processmining.plugins.etm.model.narytree.NAryTree;
 import org.processmining.plugins.etm.model.narytree.conversion.NAryTreeToProcessTree;
 import org.processmining.plugins.etm.parameters.ETMParam;
 import org.processmining.plugins.etm.parameters.ETMParamFactory;
+import org.processmining.plugins.petrinet.replayresult.PNRepResult;
 import org.processmining.processtree.ProcessTree;
 import org.processmining.processtree.conversion.ProcessTree2Petrinet;
 import org.processmining.processtree.conversion.ProcessTree2Petrinet.InvalidProcessTreeException;
@@ -47,6 +48,14 @@ public class ProcessDiscoveryMethods {
 		IMPetriNet impetrinet = new IMPetriNet();
 		Object[] obj = impetrinet.minePetriNetParameters(context, log, param);
 		Petrinet pnet = (Petrinet) obj[0];
+		
+		//call all conformance checking techniques here
+		ConformanceCheckingMethods ccm = new ConformanceCheckingMethods();
+		PNRepResult repResult = ccm.applyPNLogReplayer(context, log, pnet);
+		double traceFitness = ccm.getTraceFitness1(repResult);
+		
+		
+		
 		return pnet;
 	}
 
@@ -93,7 +102,7 @@ public class ProcessDiscoveryMethods {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			if (parsedLog.iterator().next().hashCode() == log.hashCode()) {
+			if (parsedLog.iterator().next().equals(log)) { //doesnt work
 				path = logFile.getAbsolutePath();
 				break;
 			}
@@ -105,5 +114,6 @@ public class ProcessDiscoveryMethods {
 		}
 
 	}
+
 
 }

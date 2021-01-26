@@ -1,12 +1,19 @@
 package org.processmining.plugins.workshop.evalworkflow;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.deckfour.xes.classification.XEventClass;
 import org.deckfour.xes.classification.XEventClasses;
 import org.deckfour.xes.classification.XEventClassifier;
+import org.deckfour.xes.extension.std.XConceptExtension;
 import org.deckfour.xes.info.XLogInfo;
 import org.deckfour.xes.info.XLogInfoFactory;
 import org.deckfour.xes.info.impl.XLogInfoImpl;
+import org.deckfour.xes.model.XEvent;
 import org.deckfour.xes.model.XLog;
+import org.deckfour.xes.model.XTrace;
 import org.processmining.acceptingpetrinet.models.AcceptingPetriNet;
 import org.processmining.acceptingpetrinet.models.impl.AcceptingPetriNetFactory;
 import org.processmining.framework.plugin.PluginContext;
@@ -25,12 +32,23 @@ import org.processmining.plugins.petrinet.replayresult.PNRepResult;
 import nl.tue.astar.AStarException;
 
 public class ConformanceCheckingMethods {
+	
+	public double getTraceFitness1(PNRepResult replayResult) {
+		
+		if (!replayResult.isEmpty()) {
+			double fit = (Double) replayResult.getInfo().get(PNRepResult.TRACEFITNESS);
+//			fitnessMap.put(traceLabelList, fit);
+			return fit;
+		}
+		return 0.0;
+	}
+	
 	public PNRepResult applyPNLogReplayer(PluginContext context, XLog log, Petrinet net) {
 		PNLogReplayer replayer = new PNLogReplayer();
 		PetrinetReplayerWithoutILP replayerWithoutILP = new PetrinetReplayerWithoutILP();;
 		TransEvClassMapping transEventMap = computeTransEventMapping(log, net);
 		
-		XEventClassifier classifierMap = XLogInfoImpl.NAME_CLASSIFIER;
+		XEventClassifier classifierMap = XLogInfoImpl.STANDARD_CLASSIFIER;
 		XLogInfo logInfo = XLogInfoFactory.createLogInfo(log, classifierMap);
 		AcceptingPetriNet apn = AcceptingPetriNetFactory.createAcceptingPetriNet(net);
 		CostBasedCompleteParam parameters = new CostBasedCompleteParam(logInfo.getEventClasses().getClasses(), transEventMap.getDummyEventClass(), apn.getNet().getTransitions(), 2, 5);
@@ -41,6 +59,7 @@ public class ConformanceCheckingMethods {
 		parameters.setInitialMarking(apn.getInitialMarking());
 		Marking[] finalMarkings = new Marking[] {getFinalMarking(net)};		
 		parameters.setFinalMarkings(finalMarkings);
+		parameters.setMaxNumOfStates(200000);
 		
 		try {
 			return replayer.replayLog(context, net, log, transEventMap, replayerWithoutILP, parameters);
@@ -88,7 +107,9 @@ public class ConformanceCheckingMethods {
 	}
 	
 //	public double traceFitness(XTrace trace) {
-//		List<String> traceLabelList = XLogHelper.traceToLabelList(trace);
+//		Map<List<String>, Double> fitnessMap = new HashMap<List<String>, Double>();
+//		
+//		List<String> traceLabelList = traceToLabelList(trace);
 //		if (fitnessMap.containsKey(traceLabelList)) {
 //			return fitnessMap.get(traceLabelList);
 //		}
@@ -97,7 +118,7 @@ public class ConformanceCheckingMethods {
 //		log2.add(trace);
 //
 //		try {
-//			PNRepResult replayRes = replayer.replayLog(context, net, log2, transEventMap, replayerWithoutILP, parameters);
+//			PNRepResult replayRes = applyPNLogRepla;
 //			if (!replayRes.isEmpty()) {
 //				double fit = (Double) replayRes.getInfo().get(PNRepResult.TRACEFITNESS);
 //				fitnessMap.put(traceLabelList, fit);
@@ -112,6 +133,17 @@ public class ConformanceCheckingMethods {
 //		}
 //		return 0.0;
 //	}
+	
+	
+	public static List<String> traceToLabelList(XTrace trace) {
+		List<String> res = new ArrayList<String>();
+		Iterator<XEvent> eventIter = trace.iterator();
+		while (eventIter.hasNext()) {
+			XEvent xEvent = eventIter.next();
+			res.add(XConceptExtension.instance().extractName(xEvent));
+		}
+		return res;
+	}
 //
 //	
 //

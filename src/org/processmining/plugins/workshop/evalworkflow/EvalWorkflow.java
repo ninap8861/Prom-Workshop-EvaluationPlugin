@@ -1,7 +1,6 @@
 package org.processmining.plugins.workshop.evalworkflow;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -39,24 +38,29 @@ public class EvalWorkflow {
 		
 		for (XLog log : logs) {
 			Petrinet pn1, pn2, pn3, pn4 = null;
+			
 //			pn1 = pd.applyHILP(context, log);
-//			pn2 = pd.applyInductiveMiner(context, log);
+			
+			pn2 = pd.applyInductiveMiner(context, log);
+			
 //			try {
 //				pn3 = pd.applyETM(context, log); //<--------------------------------Change this
 //			} catch (ConnectionCannotBeObtained e) {
 //				// TODO Auto-generated catch block
 //				e.printStackTrace();
 //			}
-			try {
-				pn4 = pd.applySplitMiner(log);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			
+//			try {
+//				pn4 = pd.applySplitMiner(log);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+			
 //			pnCollection.add(pn1);
-//			pnCollection.add(pn2);
+			pnCollection.add(pn2);
 //			pnCollection.add(pn3);
-			pnCollection.add(pn4);
+//			pnCollection.add(pn4);
 		}
 		
 
