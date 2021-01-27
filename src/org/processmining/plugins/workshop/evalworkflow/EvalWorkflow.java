@@ -9,27 +9,23 @@ import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.annotations.Plugin;
-import org.processmining.framework.plugin.annotations.PluginVariant;
+import org.processmining.framework.plugin.events.Logger.MessageLevel;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 
-@SuppressWarnings("deprecation")
+
 public class EvalWorkflow {
 
-	@Plugin(name = "Evaluation Workflow", parameterLabels = { "Event Log 1" }, returnLabels = { "Evaluation Results" }, returnTypes = { EvaluationResults.class }, userAccessible = true, help = "Outputs the Petri Net from HILP")
-
-	public static void main(String[] args) throws Exception {
-
-		EvalWorkflow plugin = new EvalWorkflow();
-		plugin.applyAll(null);
-
-		System.out.println("Done.");
-	}
+	@Plugin(name = "Evaluation Workflow", parameterLabels = { "Event Log 1" }, returnLabels = {
+			"Petri Net 1" }, returnTypes = {
+					Petrinet.class }, userAccessible = true, help = "Outputs the Petri Net from InductiveMiner")
 
 	@UITopiaVariant(affiliation = "University of Mannheim", author = "Antonina Prendi", email = "aprendi@mail.uni-mannheim.de")
-	@PluginVariant(variantLabel = "Default Run", requiredParameterLabels = {})
-	public void applyAll(UIPluginContext context) {
-		//		return convertToArray(context);
+//	@PluginVariant(variantLabel = "Default Run", requiredParameterLabels = {})
+	public static Object[] applyAll(UIPluginContext context, XLog log) {
+		return convertToArray(context);
+	}
 
+	public static Object[] convertToArray(UIPluginContext context) {
 		Collection<XLog> logs = null;
 		Collection<Petrinet> pnCollection = new ArrayList<Petrinet>();
 		try {
@@ -41,15 +37,16 @@ public class EvalWorkflow {
 
 		ProcessDiscoveryMethods pd = new ProcessDiscoveryMethods();
 		ArrayList<EvaluationResults> eRes = new ArrayList<EvaluationResults>();
-		
+
 		int index = 0;
 		for (XLog log : logs) {
-			index = index +1;
+			index = index + 1;
 			Petrinet pn1, pn2, pn3, pn4 = null;
 
 			//			pn1 = pd.applyHILP(context, log, eRes, index);
 
 			pn2 = pd.applyInductiveMiner(context, log, eRes, index);
+			context.log("Finished Inductive Miner", MessageLevel.NORMAL);
 
 			//			try {
 			//				pn3 = pd.applyETM(context, log, eRes, index); //<--------------------------------Change this
@@ -70,21 +67,16 @@ public class EvalWorkflow {
 			//			pnCollection.add(pn3);
 			//			pnCollection.add(pn4);
 		}
+		Object[] object = pnCollection.toArray(new Object[pnCollection.size()]);
+		return object;
 
 	}
 
-//	public Object[] convertToArray(UIPluginContext context) {
-//
-//		Object[] object = pnCollection.toArray(new Object[pnCollection.size()]);
-//		return object;
-//
-//	}
-
-	public Collection<XLog> importLog(String pathToLog) throws Exception {
+	public static Collection<XLog> importLog(String pathToLog) throws Exception {
 		return importLog(new File(pathToLog));
 	}
 
-	public Collection<XLog> importLog(File logFiles) throws Exception {
+	public static Collection<XLog> importLog(File logFiles) throws Exception {
 		Collection<XLog> collectionLogs = new ArrayList<XLog>();
 		for (File logFile : logFiles.listFiles()) {
 			XUniversalParser parser = new XUniversalParser();
