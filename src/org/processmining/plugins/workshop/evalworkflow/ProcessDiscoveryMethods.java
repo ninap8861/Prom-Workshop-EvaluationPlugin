@@ -2,11 +2,12 @@ package org.processmining.plugins.workshop.evalworkflow;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 
+import org.deckfour.xes.classification.XEventNameClassifier;
 import org.deckfour.xes.in.XUniversalParser;
 import org.deckfour.xes.model.XLog;
-import org.processmining.framework.connections.ConnectionCannotBeObtained;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.framework.plugin.events.Logger.MessageLevel;
 import org.processmining.hybridilpminer.parameters.XLogHybridILPMinerParametersImpl;
@@ -27,13 +28,13 @@ import org.processmining.processtree.conversion.ProcessTree2Petrinet.NotYetImple
 import org.processmining.processtree.conversion.ProcessTree2Petrinet.PetrinetWithMarkings;
 
 public class ProcessDiscoveryMethods {
-
-	public Petrinet applyHILP(PluginContext context, XLog log) {
+	
+	public Petrinet applyHILP(PluginContext context, XLog log, ArrayList<EvaluationResults> eRes, int index) {
 		//		Petrinet net = context.tryToFindOrConstructFirstNamedObject(Petrinet.class, "ILP-Based Process Discovery",
 		//				Connection.class, "", log);
 		//		return net;
 		context.log("Started Hybrid ILP Miner", MessageLevel.NORMAL);
-		XLogHybridILPMinerParametersImpl param = new XLogHybridILPMinerParametersImpl(context);
+		XLogHybridILPMinerParametersImpl param = new XLogHybridILPMinerParametersImpl(context, log, new XEventNameClassifier());
 		HybridILPMinerPlugin hilp = new HybridILPMinerPlugin();
 		Object[] obj = hilp.applyParams(context, log, param);
 		Petrinet pnet = (Petrinet) obj[0];
@@ -41,7 +42,7 @@ public class ProcessDiscoveryMethods {
 
 	}
 
-	public Petrinet applyInductiveMiner(PluginContext context, XLog log) {
+	public Petrinet applyInductiveMiner(PluginContext context, XLog log, ArrayList<EvaluationResults> eRes, int index) {
 		//		XEventClassifier classifier = MiningParameters.getDefaultClassifier();
 		context.log("Started Inductive Miner", MessageLevel.NORMAL);
 		MiningParametersIMf param = new MiningParametersIMf();
@@ -54,13 +55,14 @@ public class ProcessDiscoveryMethods {
 		PNRepResult repResult = ccm.applyPNLogReplayer(context, log, pnet);
 		double traceFitness = ccm.getTraceFitness1(repResult);
 		
-		
+		String evLogDescr = "Event Log " + Integer.toString(index);
+		eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "PNReplayer", traceFitness));
 		
 		return pnet;
 	}
 
 	@SuppressWarnings("deprecation")
-	public Petrinet applyETM(PluginContext context, XLog log) throws ConnectionCannotBeObtained {
+	public Petrinet applyETM(PluginContext context, XLog log, ArrayList<EvaluationResults> eRes, int index) {
 
 		ETMParam param = ETMParamFactory.buildStandardParam(log);
 		ETM etm = new ETM(param);
@@ -78,7 +80,7 @@ public class ProcessDiscoveryMethods {
 		return petrinetwithmarkings.petrinet;
 	}
 
-	public static Petrinet applySplitMiner(XLog log) throws IOException {
+	public static Petrinet applySplitMiner(XLog log, ArrayList<EvaluationResults> eRes, int index) throws IOException {
 		String logPath = null, statement = null;
 		logPath = findLogPath(log);
 
