@@ -103,7 +103,7 @@ public class ProcessDiscoveryMethods {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			if (parsedLog.iterator().next().equals(log)) { //doesnt work
+			if (parsedLog.iterator().next() == log) {
 				path = logFile.getAbsolutePath();
 				break;
 			}

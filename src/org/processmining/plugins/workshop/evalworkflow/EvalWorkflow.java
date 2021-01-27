@@ -1,6 +1,7 @@
 package org.processmining.plugins.workshop.evalworkflow;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -9,7 +10,6 @@ import org.deckfour.xes.model.XLog;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.annotations.Plugin;
-import org.processmining.framework.plugin.events.Logger.MessageLevel;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 
 
@@ -45,8 +45,8 @@ public class EvalWorkflow {
 
 			//			pn1 = pd.applyHILP(context, log, eRes, index);
 
-			pn2 = pd.applyInductiveMiner(context, log, eRes, index);
-			context.log("Finished Inductive Miner", MessageLevel.NORMAL);
+//			pn2 = pd.applyInductiveMiner(context, log, eRes, index);
+//			context.log("Finished Inductive Miner", MessageLevel.NORMAL);
 
 			//			try {
 			//				pn3 = pd.applyETM(context, log, eRes, index); //<--------------------------------Change this
@@ -55,17 +55,17 @@ public class EvalWorkflow {
 			//				e.printStackTrace();
 			//			}
 
-			//			try {
-			//				pn4 = pd.applySplitMiner(log, eRes, index);
-			//			} catch (IOException e) {
-			//				// TODO Auto-generated catch block
-			//				e.printStackTrace();
-			//			}
+						try {
+							pn4 = pd.applySplitMiner(log, eRes, index);
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 
 			//			pnCollection.add(pn1);
-			pnCollection.add(pn2);
+//			pnCollection.add(pn2);
 			//			pnCollection.add(pn3);
-			//			pnCollection.add(pn4);
+						pnCollection.add(pn4);
 		}
 		Object[] object = pnCollection.toArray(new Object[pnCollection.size()]);
 		return object;
