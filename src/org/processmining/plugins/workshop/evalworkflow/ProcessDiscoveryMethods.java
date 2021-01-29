@@ -100,7 +100,7 @@ public class ProcessDiscoveryMethods {
 		Process pr = rt.exec(new String[]{"java", "-cp", "sm2.jar;lib\\*", "au.edu.unimelb.services.ServiceProvider", "SM2", logPath, ".\\bpmnmodelprom", "0.05"}, null, dir);
 
 		try {
-			Bpmn bpmnModel = importBPMN(outputPath);
+			Bpmn bpmnModel = importBPMN("C:\\Users\\I519745\\Desktop\\Thesis\\Thesis\\split-miner-2.0\\bpmnmodelprom.bpmn");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
