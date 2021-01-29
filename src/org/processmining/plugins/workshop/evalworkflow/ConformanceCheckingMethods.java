@@ -16,6 +16,8 @@ import org.deckfour.xes.model.XLog;
 import org.deckfour.xes.model.XTrace;
 import org.processmining.acceptingpetrinet.models.AcceptingPetriNet;
 import org.processmining.acceptingpetrinet.models.impl.AcceptingPetriNetFactory;
+import org.processmining.decomposedreplayer.parameters.DecomposedReplayParameters;
+import org.processmining.decomposedreplayer.plugins.DecomposedReplayPlugin;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.models.graphbased.directed.petrinet.PetrinetGraph;
@@ -33,7 +35,7 @@ import nl.tue.astar.AStarException;
 
 public class ConformanceCheckingMethods {
 	
-	public double getTraceFitness1(PNRepResult replayResult) {
+	public double getTraceFitness(PNRepResult replayResult) {
 		
 		if (!replayResult.isEmpty()) {
 			double fit = (Double) replayResult.getInfo().get(PNRepResult.TRACEFITNESS);
@@ -70,6 +72,15 @@ public class ConformanceCheckingMethods {
 		return null;
 		
 	}
+	
+	public PNRepResult applyDecomposedReplayer(PluginContext context, XLog log, Petrinet net) {
+		DecomposedReplayPlugin replayer = new DecomposedReplayPlugin();
+		AcceptingPetriNet apn = AcceptingPetriNetFactory.createAcceptingPetriNet(net);
+		DecomposedReplayParameters parameters = new DecomposedReplayParameters(log, apn);
+		return replayer.apply(context, log, apn, parameters);
+		
+	}
+	
 	
 	private Marking getFinalMarking(Petrinet net) {
 		Marking finalMarking = new Marking();

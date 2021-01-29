@@ -18,6 +18,7 @@
        <dependency org="prom" name="PNetReplayer" rev="latest" changing="true" transitive="true" />
        <dependency org="prom" name="Log" rev="latest" changing="true" transitive="true" />
        <dependency org="prom" name="SimpleLogOperations" rev="latest" changing="true" transitive="true" />
+       <dependency org="prom" name="DecomposedReplayer" rev="latest" changing="true" transitive="true" />
        <dependency org="de.uni.freiburg.iig.telematik" name="SEWOL" rev="1.0.0"/>
     </dependencies>
 </ivy-module>

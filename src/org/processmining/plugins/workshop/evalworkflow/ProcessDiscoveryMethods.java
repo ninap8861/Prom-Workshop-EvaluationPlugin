@@ -1,12 +1,13 @@
 package org.processmining.plugins.workshop.evalworkflow;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 
 import org.deckfour.xes.classification.XEventNameClassifier;
-import org.deckfour.xes.in.XUniversalParser;
+import org.deckfour.xes.model.XAttributeMap;
 import org.deckfour.xes.model.XLog;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.hybridilpminer.parameters.XLogHybridILPMinerParametersImpl;
@@ -14,6 +15,7 @@ import org.processmining.hybridilpminer.plugins.HybridILPMinerPlugin;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMf;
 import org.processmining.plugins.InductiveMiner.plugins.IMPetriNet;
+import org.processmining.plugins.bpmn.Bpmn;
 import org.processmining.plugins.etm.ETM;
 import org.processmining.plugins.etm.model.narytree.NAryTree;
 import org.processmining.plugins.etm.model.narytree.conversion.NAryTreeToProcessTree;
@@ -25,6 +27,8 @@ import org.processmining.processtree.conversion.ProcessTree2Petrinet;
 import org.processmining.processtree.conversion.ProcessTree2Petrinet.InvalidProcessTreeException;
 import org.processmining.processtree.conversion.ProcessTree2Petrinet.NotYetImplementedException;
 import org.processmining.processtree.conversion.ProcessTree2Petrinet.PetrinetWithMarkings;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 public class ProcessDiscoveryMethods {
 	
@@ -51,11 +55,16 @@ public class ProcessDiscoveryMethods {
 		
 		//call all conformance checking techniques here
 		ConformanceCheckingMethods ccm = new ConformanceCheckingMethods();
-		PNRepResult repResult = ccm.applyPNLogReplayer(context, log, pnet);
-		double traceFitness = ccm.getTraceFitness1(repResult);
+		PNRepResult repResult1 = ccm.applyPNLogReplayer(context, log, pnet);
+		double traceFitness1 = ccm.getTraceFitness(repResult1);
 		
 		String evLogDescr = "Event Log " + Integer.toString(index);
-		eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "PNReplayer", traceFitness));
+		eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "PNReplayer", traceFitness1));
+		
+		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
+		double traceFitness2 = ccm.getTraceFitness(repResult2);
+		
+		eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "PNReplayer", traceFitness2));
 		
 		return pnet;
 	}
@@ -81,38 +90,56 @@ public class ProcessDiscoveryMethods {
 
 	public static Petrinet applySplitMiner(XLog log, ArrayList<EvaluationResults> eRes, int index) throws IOException {
 		String logPath = null, statement = null;
-		logPath = findLogPath(log);
-
-		statement = "java -cp sm2.jar;lib\\* au.edu.unimelb.services.ServiceProvider SM2" + logPath
-				+ ".\\bpmnmodel 0.05";
+		XAttributeMap attrMap = log.getAttributes();
+		logPath = attrMap.get("path").toString();
+		String outputPath = " C:\\Users\\I519745\\Desktop\\Thesis\\Thesis\\BPMNModelsSM\\bpmnmodelprom ";
+		statement = "java -cp sm2.jar;lib\\* au.edu.unimelb.services.ServiceProvider SM2 " + logPath
+				+ outputPath + "0.05";
 		Runtime rt = Runtime.getRuntime();
-		Process pr = rt.exec(statement);
+		File dir = new File("C:\\Users\\I519745\\Desktop\\Thesis\\Thesis\\split-miner-2.0");
+		Process pr = rt.exec(new String[]{"java", "-cp", "sm2.jar;lib\\*", "au.edu.unimelb.services.ServiceProvider", "SM2", logPath, ".\\bpmnmodelprom", "0.05"}, null, dir);
 
+		try {
+			Bpmn bpmnModel = importBPMN(outputPath);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return null;
 	}
 
-	public static String findLogPath(XLog log) {
-		String path = null;
-		File logFiles = new File("C:/Users/I519745/Desktop/Thesis/Thesis/EventLogs/");
-		for (File logFile : logFiles.listFiles()) {
-			XUniversalParser parser = new XUniversalParser();
-			Collection<XLog> parsedLog = null;
-			try {
-				parsedLog = parser.parse(logFile);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if (parsedLog.iterator().next() == log) {
-				path = logFile.getAbsolutePath();
-				break;
-			}
+	public static Bpmn importBPMN(String pathToModel) throws Exception {
+		File bpmnFile = new File(pathToModel);
+//		long fileSizeInBytes = bpmnFile.length();
+		InputStream input = new FileInputStream(bpmnFile);
+		
+		XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+		factory.setNamespaceAware(true);
+		XmlPullParser xpp = factory.newPullParser();
+		
+		xpp.setInput(input, null);
+		int eventType = xpp.getEventType();
+		Bpmn bpmn = new Bpmn();
+
+		while (eventType != XmlPullParser.START_TAG) {
+			eventType = xpp.next();
 		}
-		if (path != null) {
-			return path;
+		if (xpp.getName().equals(bpmn.tag)) {
+			bpmn.importElement(xpp, bpmn);
 		} else {
+			bpmn.log(bpmn.tag, xpp.getLineNumber(), "Expected " + bpmn.tag + ", got " + xpp.getName());
+		}
+		if (bpmn.hasErrors()) {
+//			context.getProvidedObjectManager().createProvidedObject("Log of BPMN import", bpmn.getLog(), XLog.class,
+//					context);
 			return null;
 		}
+//		BpmnDiagrams diagrams = new BpmnDiagrams();
+//		diagrams.setBpmn(bpmn);
+//		diagrams.setName(filename);
+//		diagrams.addAll(bpmn.getDiagrams());
+		return bpmn;
 
 	}
 

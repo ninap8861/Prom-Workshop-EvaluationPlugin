@@ -7,6 +7,7 @@ import java.util.Collection;
 
 import org.deckfour.xes.in.XUniversalParser;
 import org.deckfour.xes.model.XLog;
+import org.deckfour.xes.model.impl.XAttributeLiteralImpl;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.annotations.Plugin;
@@ -44,9 +45,11 @@ public class EvalWorkflow {
 			Petrinet pn1, pn2, pn3, pn4 = null;
 
 			//			pn1 = pd.applyHILP(context, log, eRes, index);
+			//			pnCollection.add(pn1);
 
 //			pn2 = pd.applyInductiveMiner(context, log, eRes, index);
 //			context.log("Finished Inductive Miner", MessageLevel.NORMAL);
+//			pnCollection.add(pn2);
 
 			//			try {
 			//				pn3 = pd.applyETM(context, log, eRes, index); //<--------------------------------Change this
@@ -54,6 +57,7 @@ public class EvalWorkflow {
 			//				// TODO Auto-generated catch block
 			//				e.printStackTrace();
 			//			}
+			//			pnCollection.add(pn3);
 
 						try {
 							pn4 = pd.applySplitMiner(log, eRes, index);
@@ -61,11 +65,9 @@ public class EvalWorkflow {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
+			pnCollection.add(pn4);
 
-			//			pnCollection.add(pn1);
-//			pnCollection.add(pn2);
-			//			pnCollection.add(pn3);
-						pnCollection.add(pn4);
+						
 		}
 		Object[] object = pnCollection.toArray(new Object[pnCollection.size()]);
 		return object;
@@ -82,6 +84,7 @@ public class EvalWorkflow {
 			XUniversalParser parser = new XUniversalParser();
 			Collection<XLog> logs = parser.parse(logFile);
 			if (logs.size() > 0) {
+				logs.iterator().next().getAttributes().put("path", new XAttributeLiteralImpl("Path", logFile.getAbsolutePath()));
 				collectionLogs.add(logs.iterator().next());
 			}
 		}
