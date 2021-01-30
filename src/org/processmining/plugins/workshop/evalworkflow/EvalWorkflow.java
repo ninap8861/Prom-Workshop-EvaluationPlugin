@@ -1,7 +1,6 @@
 package org.processmining.plugins.workshop.evalworkflow;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -11,14 +10,15 @@ import org.deckfour.xes.model.impl.XAttributeLiteralImpl;
 import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.contexts.uitopia.annotations.UITopiaVariant;
 import org.processmining.framework.plugin.annotations.Plugin;
+import org.processmining.framework.plugin.events.Logger.MessageLevel;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 
 
 public class EvalWorkflow {
 
 	@Plugin(name = "Evaluation Workflow", parameterLabels = { "Event Log 1" }, returnLabels = {
-			"Petri Net 1" }, returnTypes = {
-					Petrinet.class }, userAccessible = true, help = "Outputs the Petri Net from InductiveMiner")
+			"Petri Net 1", "Petri Net 2", "Petri Net 3", "Petri Net 4", "Petri Net 5", "Petri Net 6" }, returnTypes = {
+					Petrinet.class, Petrinet.class, Petrinet.class, Petrinet.class, Petrinet.class, Petrinet.class }, userAccessible = true, help = "Outputs the Petri Nets")
 
 	@UITopiaVariant(affiliation = "University of Mannheim", author = "Antonina Prendi", email = "aprendi@mail.uni-mannheim.de")
 //	@PluginVariant(variantLabel = "Default Run", requiredParameterLabels = {})
@@ -44,12 +44,12 @@ public class EvalWorkflow {
 			index = index + 1;
 			Petrinet pn1, pn2, pn3, pn4 = null;
 
-			//			pn1 = pd.applyHILP(context, log, eRes, index);
-			//			pnCollection.add(pn1);
+//			pn1 = pd.applyHILP(context, log, eRes, index);
+//			pnCollection.add(pn1);
 
-//			pn2 = pd.applyInductiveMiner(context, log, eRes, index);
-//			context.log("Finished Inductive Miner", MessageLevel.NORMAL);
-//			pnCollection.add(pn2);
+			pn2 = pd.applyInductiveMiner(context, log, eRes, index);
+			context.log("Finished Inductive Miner", MessageLevel.NORMAL);
+			pnCollection.add(pn2);
 
 			//			try {
 			//				pn3 = pd.applyETM(context, log, eRes, index); //<--------------------------------Change this
@@ -59,13 +59,13 @@ public class EvalWorkflow {
 			//			}
 			//			pnCollection.add(pn3);
 
-						try {
-							pn4 = pd.applySplitMiner(log, eRes, index);
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-			pnCollection.add(pn4);
+//						try {
+//							pn4 = pd.applySplitMiner(log, eRes, index);
+//						} catch (IOException e) {
+//							// TODO Auto-generated catch block
+//							e.printStackTrace();
+//						}
+//			pnCollection.add(pn4);
 
 						
 		}

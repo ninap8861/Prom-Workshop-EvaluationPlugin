@@ -39,7 +39,15 @@ public class ConformanceCheckingMethods {
 		
 		if (!replayResult.isEmpty()) {
 			double fit = (Double) replayResult.getInfo().get(PNRepResult.TRACEFITNESS);
-//			fitnessMap.put(traceLabelList, fit);
+			return fit;
+		}
+		return 0.0;
+	}
+	
+	public double getRawFitnessCost(PNRepResult replayResult) {
+		
+		if (!replayResult.isEmpty()) {
+			double fit = (Double) replayResult.getInfo().get("Raw Fitness Cost");
 			return fit;
 		}
 		return 0.0;
@@ -77,7 +85,10 @@ public class ConformanceCheckingMethods {
 		DecomposedReplayPlugin replayer = new DecomposedReplayPlugin();
 		AcceptingPetriNet apn = AcceptingPetriNetFactory.createAcceptingPetriNet(net);
 		DecomposedReplayParameters parameters = new DecomposedReplayParameters(log, apn);
-		return replayer.apply(context, log, apn, parameters);
+//		return replayer.apply(context, log, apn, parameters);
+		PNRepResult result = replayer.run(context, log, apn, parameters);
+		return result;
+		
 		
 	}
 	
