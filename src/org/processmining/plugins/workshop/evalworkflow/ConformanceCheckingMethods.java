@@ -16,6 +16,8 @@ import org.deckfour.xes.model.XLog;
 import org.deckfour.xes.model.XTrace;
 import org.processmining.acceptingpetrinet.models.AcceptingPetriNet;
 import org.processmining.acceptingpetrinet.models.impl.AcceptingPetriNetFactory;
+import org.processmining.antialignments.ilp.antialignment.AntiAlignmentParameters;
+import org.processmining.antialignments.ilp.antialignment.AntiAlignmentPlugin;
 import org.processmining.decomposedreplayer.parameters.DecomposedReplayParameters;
 import org.processmining.decomposedreplayer.plugins.DecomposedReplayPlugin;
 import org.processmining.framework.plugin.PluginContext;
@@ -90,6 +92,43 @@ public class ConformanceCheckingMethods {
 		return result;
 		
 		
+	}
+	
+	public PNRepResult applyApproximationAlignment(PluginContext context, XLog log, Petrinet net) {
+		PNLogReplayer replayer = new PNLogReplayer();
+		PetrinetReplayerWithoutILP replayerWithoutILP = new PetrinetReplayerWithoutILP();;
+		TransEvClassMapping transEventMap = computeTransEventMapping(log, net);
+		
+		XEventClassifier classifierMap = XLogInfoImpl.STANDARD_CLASSIFIER;
+		XLogInfo logInfo = XLogInfoFactory.createLogInfo(log, classifierMap);
+		AcceptingPetriNet apn = AcceptingPetriNetFactory.createAcceptingPetriNet(net);
+		CostBasedCompleteParam replayerParams = new CostBasedCompleteParam(logInfo.getEventClasses().getClasses(), transEventMap.getDummyEventClass(), apn.getNet().getTransitions(), 2, 5);
+		replayerParams.getMapEvClass2Cost().remove(transEventMap.getDummyEventClass());
+		replayerParams.getMapEvClass2Cost().put(transEventMap.getDummyEventClass(), 1);
+		replayerParams.setGUIMode(false);
+		replayerParams.setCreateConn(false);
+		replayerParams.setInitialMarking(apn.getInitialMarking());
+		Marking[] finalMarkings = new Marking[] {getFinalMarking(net)};		
+		replayerParams.setFinalMarkings(finalMarkings);
+		replayerParams.setMaxNumOfStates(200000);
+		
+		PNRepResult alignments = null;
+		try {
+			alignments =  replayer.replayLog(context, net, log, transEventMap, replayerWithoutILP, replayerParams);
+		} catch (AStarException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		AntiAlignmentPlugin aap = new AntiAlignmentPlugin();
+		AntiAlignmentParameters aaParams = new AntiAlignmentParameters(5, 1, 1, 2); //default params
+		if(!alignments.isEmpty()) {
+			PNRepResult result = aap.measurePrecision(context, net, log, alignments, aaParams);
+			return result;
+		}
+		
+		return null;
 	}
 	
 	

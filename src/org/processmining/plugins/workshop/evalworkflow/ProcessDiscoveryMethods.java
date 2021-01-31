@@ -12,10 +12,12 @@ import org.deckfour.xes.model.XAttributeMap;
 import org.deckfour.xes.model.XLog;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.hybridilpminer.plugins.HybridILPMinerPlugin;
+import org.processmining.models.graphbased.directed.bpmn.BPMNDiagram;
 import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 import org.processmining.plugins.InductiveMiner.mining.MiningParametersIMf;
 import org.processmining.plugins.InductiveMiner.plugins.IMPetriNet;
 import org.processmining.plugins.bpmn.Bpmn;
+import org.processmining.plugins.bpmn.plugins.BpmnSelectDiagramPlugin;
 import org.processmining.plugins.etm.ETM;
 import org.processmining.plugins.etm.model.narytree.NAryTree;
 import org.processmining.plugins.etm.model.narytree.conversion.NAryTreeToProcessTree;
@@ -29,6 +31,8 @@ import org.processmining.processtree.conversion.ProcessTree2Petrinet.NotYetImple
 import org.processmining.processtree.conversion.ProcessTree2Petrinet.PetrinetWithMarkings;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
+
+import com.raffaeleconforti.conversion.bpmn.BPMNToPetriNetConverter;
 
 public class ProcessDiscoveryMethods {
 
@@ -75,14 +79,14 @@ public class ProcessDiscoveryMethods {
 		ConformanceCheckingMethods ccm = new ConformanceCheckingMethods();
 		PNRepResult repResult1 = ccm.applyPNLogReplayer(context, log, pnet);
 		double traceFitness1 = ccm.getTraceFitness(repResult1);
-
 		String evLogDescr = "Event Log " + Integer.toString(index);
 		eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "CostBased", traceFitness1, 0.0));
 
 		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
 		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
-
 		eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "Decomposed", 0.0, rawFitnessCost));
+
+		//		PNRepResult repResult3 = ccm.applyApproximationAlignment(context, log, pnet);
 
 		return pnet;
 	}
@@ -103,35 +107,123 @@ public class ProcessDiscoveryMethods {
 		} catch (InvalidProcessTreeException e) {
 			e.printStackTrace();
 		}
+
+		//call all conformance checking techniques here
+		ConformanceCheckingMethods ccm = new ConformanceCheckingMethods();
+		PNRepResult repResult1 = ccm.applyPNLogReplayer(context, log, petrinetwithmarkings.petrinet);
+		double traceFitness1 = ccm.getTraceFitness(repResult1);
+
+		String evLogDescr = "Event Log " + Integer.toString(index);
+		eRes.add(new EvaluationResults(evLogDescr, "ETM", "CostBased", traceFitness1, 0.0));
+
+		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, petrinetwithmarkings.petrinet);
+		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
+
+		eRes.add(new EvaluationResults(evLogDescr, "ETM", "Decomposed", 0.0, rawFitnessCost));
+
 		return petrinetwithmarkings.petrinet;
 	}
 
-	public static Petrinet applySplitMiner(XLog log, ArrayList<EvaluationResults> eRes, int index) throws IOException {
-		String logPath = null, statement = null;
+	public static Petrinet applySplitMiner(PluginContext context, XLog log, ArrayList<EvaluationResults> eRes,
+			int index) throws IOException {
+		String logPath = null;
 		XAttributeMap attrMap = log.getAttributes();
 		logPath = attrMap.get("path").toString();
-		String outputPath = " C:\\Users\\I519745\\Desktop\\Thesis\\Thesis\\BPMNModelsSM\\bpmnmodelprom ";
-		statement = "java -cp sm2.jar;lib\\* au.edu.unimelb.services.ServiceProvider SM2 " + logPath + outputPath
-				+ "0.05";
+		String outputPath = ".\\bpmnmodelprom" + Integer.toString(index);
+		String importPath = "C:\\Users\\I519745\\Desktop\\Thesis\\Thesis\\split-miner-2.0\\bpmnmodelprom"
+				+ Integer.toString(index) + ".bpmn";
 		Runtime rt = Runtime.getRuntime();
 		File dir = new File("C:\\Users\\I519745\\Desktop\\Thesis\\Thesis\\split-miner-2.0");
 		Process pr = rt.exec(new String[] { "java", "-cp", "sm2.jar;lib\\*", "au.edu.unimelb.services.ServiceProvider",
-				"SM2", logPath, ".\\bpmnmodelprom", "0.05" }, null, dir);
-
+				"SM2", logPath, outputPath, "0.05" }, null, dir);
+		Bpmn bpmnModel = null;
 		try {
-			Bpmn bpmnModel = importBPMN(
-					"C:\\Users\\I519745\\Desktop\\Thesis\\Thesis\\split-miner-2.0\\bpmnmodelprom.bpmn");
+			bpmnModel = importBPMN(importPath);
+			if(bpmnModel == null)
+				return null;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Petrinet pnet = convertBPMNToPetriNet(context, bpmnModel);
+
+		//call all conformance checking techniques here
+		ConformanceCheckingMethods ccm = new ConformanceCheckingMethods();
+		PNRepResult repResult1 = ccm.applyPNLogReplayer(context, log, pnet);
+		double traceFitness1 = ccm.getTraceFitness(repResult1);
+
+		String evLogDescr = "Event Log " + Integer.toString(index);
+		eRes.add(new EvaluationResults(evLogDescr, "Split Miner", "CostBased", traceFitness1, 0.0));
+
+		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
+		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
+
+		eRes.add(new EvaluationResults(evLogDescr, "Split Miner", "Decomposed", 0.0, rawFitnessCost));
+
+		return pnet;
+	}
+
+	public static Petrinet applyStructuredMiner(PluginContext context, XLog log, ArrayList<EvaluationResults> eRes,
+			int index) throws IOException {
+		String logPath = null;
+		XAttributeMap attrMap = log.getAttributes();
+		logPath = attrMap.get("path").toString();
+		String outputPath = ".\\outputs\\bpmnmodelprom" + Integer.toString(index);
+		String importPath = "C:\\Users\\I519745\\Desktop\\Thesis\\Thesis\\structuredminer\\outputs\\bpmnmodelprom"
+				+ Integer.toString(index) + ".bpmn";
+		Runtime rt = Runtime.getRuntime();
+		File dir = new File("C:\\Users\\I519745\\Desktop\\Thesis\\Thesis\\structuredminer");
+		Process pr = rt.exec(new String[] { "java", "-jar", "StructuredMiner.jar", "hm", logPath, outputPath }, null,
+				dir);
+
+		Bpmn bpmnModel = null;
+		try {
+			bpmnModel = importBPMN(importPath);
+			if(bpmnModel == null)
+				return null;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		return null;
+		Petrinet pnet = convertBPMNToPetriNet(context, bpmnModel);
+
+		//call all conformance checking techniques here
+		ConformanceCheckingMethods ccm = new ConformanceCheckingMethods();
+		PNRepResult repResult1 = ccm.applyPNLogReplayer(context, log, pnet);
+		double traceFitness1 = ccm.getTraceFitness(repResult1);
+
+		String evLogDescr = "Event Log " + Integer.toString(index);
+		eRes.add(new EvaluationResults(evLogDescr, "Structured Miner", "CostBased", traceFitness1, 0.0));
+
+		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
+		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
+
+		eRes.add(new EvaluationResults(evLogDescr, "Structured Miner", "Decomposed", 0.0, rawFitnessCost));
+
+		return pnet;
+	}
+
+	//	public static void waitForFileCreation(String filePath) {
+	//		if(!new File(filePath).exists())
+	//			
+	//	}
+
+	public static Petrinet convertBPMNToPetriNet(PluginContext context, Bpmn bpmn) {
+		BPMNToPetriNetConverter bpmnToPn = new BPMNToPetriNetConverter();
+		BpmnSelectDiagramPlugin bpmnToDiagram = new BpmnSelectDiagramPlugin();
+		BPMNDiagram bpmnDiagram = bpmnToDiagram.selectDefault(context, bpmn);
+		Object[] object = bpmnToPn.convert(bpmnDiagram);
+		Petrinet pn = (Petrinet) object[0];
+		return pn;
 	}
 
 	public static Bpmn importBPMN(String pathToModel) throws Exception {
 		File bpmnFile = new File(pathToModel);
 		//		long fileSizeInBytes = bpmnFile.length();
+		if(!bpmnFile.exists()) {
+			return null;
+		}
 		InputStream input = new FileInputStream(bpmnFile);
 
 		XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
@@ -155,10 +247,7 @@ public class ProcessDiscoveryMethods {
 			//					context);
 			return null;
 		}
-		//		BpmnDiagrams diagrams = new BpmnDiagrams();
-		//		diagrams.setBpmn(bpmn);
-		//		diagrams.setName(filename);
-		//		diagrams.addAll(bpmn.getDiagrams());
+
 		return bpmn;
 
 	}
