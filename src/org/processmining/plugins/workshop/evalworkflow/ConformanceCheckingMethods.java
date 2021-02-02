@@ -46,11 +46,38 @@ public class ConformanceCheckingMethods {
 		return 0.0;
 	}
 	
+	public double getMaxFitnessCost(PNRepResult replayResult) {
+		
+		if (!replayResult.isEmpty()) {
+			double fit = (Double) replayResult.getInfo().get(PNRepResult.MAXFITNESSCOST);
+			return fit;
+		}
+		return 0.0;
+	}
+	
+	public double getCalculationTime(PNRepResult replayResult) {
+		
+		if (!replayResult.isEmpty()) {
+			double fit = (Double) replayResult.getInfo().get(PNRepResult.TIME);
+			return fit;
+		}
+		return 0.0;
+	}
+	
 	public double getRawFitnessCost(PNRepResult replayResult) {
 		
 		if (!replayResult.isEmpty()) {
 			double fit = (Double) replayResult.getInfo().get("Raw Fitness Cost");
 			return fit;
+		}
+		return 0.0;
+	}
+	
+	public double getCalcTime(PNRepResult replayResult) {
+		
+		if (!replayResult.isEmpty()) {
+			double time = (Double) replayResult.getInfo().get("Calculation Time (ms)");
+			return time;
 		}
 		return 0.0;
 	}

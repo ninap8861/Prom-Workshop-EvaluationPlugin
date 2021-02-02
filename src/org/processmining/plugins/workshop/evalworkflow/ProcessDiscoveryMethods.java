@@ -42,9 +42,9 @@ public class ProcessDiscoveryMethods {
 		//		return net;
 		//		context.log("Started Hybrid ILP Miner", MessageLevel.NORMAL);
 		//		XLogHybridILPMinerParametersImpl param = new XLogHybridILPMinerParametersImpl(context, log, new XEventNameClassifier());
-		if (index == 3 || index == 4) { //doesnt work for sap logs too large
-			return null;
-		}
+//		if (index == 3 || index == 4) { //doesnt work for sap logs too large
+//			return null;
+//		}
 		HybridILPMinerPlugin hilp = new HybridILPMinerPlugin();
 		XEventClassifier classifierMap = XLogInfoImpl.STANDARD_CLASSIFIER;
 		Object[] obj = hilp.applyExpress(context, log, classifierMap);
@@ -54,14 +54,17 @@ public class ProcessDiscoveryMethods {
 		ConformanceCheckingMethods ccm = new ConformanceCheckingMethods();
 		PNRepResult repResult1 = ccm.applyPNLogReplayer(context, log, pnet);
 		double traceFitness1 = ccm.getTraceFitness(repResult1);
+		double calcTime = ccm.getCalculationTime(repResult1);
+		double maxFitness = ccm.getMaxFitnessCost(repResult1);
 
 		String evLogDescr = "Event Log " + Integer.toString(index);
-		eRes.add(new EvaluationResults(evLogDescr, "HILP", "CostBased", traceFitness1, 0.0));
+		eRes.add(new EvaluationResults(evLogDescr, "HILP", "CostBased", calcTime, traceFitness1, maxFitness, 0.0));
 
 		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
 		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
+		calcTime = ccm.getCalcTime(repResult2);
 
-		eRes.add(new EvaluationResults(evLogDescr, "HILP", "Decomposed", 0.0, rawFitnessCost));
+		eRes.add(new EvaluationResults(evLogDescr, "HILP", "Decomposed", calcTime, 0.0, 0.0, rawFitnessCost));
 
 		return pnet;
 
@@ -78,15 +81,19 @@ public class ProcessDiscoveryMethods {
 		//call all conformance checking techniques here
 		ConformanceCheckingMethods ccm = new ConformanceCheckingMethods();
 		PNRepResult repResult1 = ccm.applyPNLogReplayer(context, log, pnet);
-		double traceFitness1 = ccm.getTraceFitness(repResult1);
 		String evLogDescr = "Event Log " + Integer.toString(index);
-		eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "CostBased", traceFitness1, 0.0));
+		double traceFitness1 = ccm.getTraceFitness(repResult1);
+		double calcTime = ccm.getCalculationTime(repResult1);
+		double maxFitness = ccm.getMaxFitnessCost(repResult1);
+
+		eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "CostBased", calcTime, traceFitness1, maxFitness, 0.0));
 
 		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
 		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
-		eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "Decomposed", 0.0, rawFitnessCost));
+		calcTime = ccm.getCalcTime(repResult2);
+		eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "Decomposed", calcTime, 0.0, 0.0, rawFitnessCost));
 
-		//		PNRepResult repResult3 = ccm.applyApproximationAlignment(context, log, pnet);
+//		PNRepResult repResult3 = ccm.applyApproximationAlignment(context, log, pnet);
 
 		return pnet;
 	}
@@ -112,14 +119,18 @@ public class ProcessDiscoveryMethods {
 		ConformanceCheckingMethods ccm = new ConformanceCheckingMethods();
 		PNRepResult repResult1 = ccm.applyPNLogReplayer(context, log, petrinetwithmarkings.petrinet);
 		double traceFitness1 = ccm.getTraceFitness(repResult1);
-
+		
 		String evLogDescr = "Event Log " + Integer.toString(index);
-		eRes.add(new EvaluationResults(evLogDescr, "ETM", "CostBased", traceFitness1, 0.0));
+		double calcTime = ccm.getCalculationTime(repResult1);
+		double maxFitness = ccm.getMaxFitnessCost(repResult1);
+
+		eRes.add(new EvaluationResults(evLogDescr, "ETM", "CostBased", calcTime, traceFitness1, maxFitness, 0.0));
 
 		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, petrinetwithmarkings.petrinet);
 		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
+		calcTime = ccm.getCalcTime(repResult2);
 
-		eRes.add(new EvaluationResults(evLogDescr, "ETM", "Decomposed", 0.0, rawFitnessCost));
+		eRes.add(new EvaluationResults(evLogDescr, "ETM", "Decomposed", calcTime, 0.0, 0.0, rawFitnessCost));
 
 		return petrinetwithmarkings.petrinet;
 	}
@@ -153,12 +164,16 @@ public class ProcessDiscoveryMethods {
 		double traceFitness1 = ccm.getTraceFitness(repResult1);
 
 		String evLogDescr = "Event Log " + Integer.toString(index);
-		eRes.add(new EvaluationResults(evLogDescr, "Split Miner", "CostBased", traceFitness1, 0.0));
+		double calcTime = ccm.getCalculationTime(repResult1);
+		double maxFitness = ccm.getMaxFitnessCost(repResult1);
+
+		eRes.add(new EvaluationResults(evLogDescr, "Split Miner", "CostBased", calcTime, traceFitness1, maxFitness, 0.0));
 
 		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
 		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
+		calcTime = ccm.getCalcTime(repResult2);
 
-		eRes.add(new EvaluationResults(evLogDescr, "Split Miner", "Decomposed", 0.0, rawFitnessCost));
+		eRes.add(new EvaluationResults(evLogDescr, "Split Miner", "Decomposed", calcTime, 0.0, 0.0, rawFitnessCost));
 
 		return pnet;
 	}
@@ -194,12 +209,16 @@ public class ProcessDiscoveryMethods {
 		double traceFitness1 = ccm.getTraceFitness(repResult1);
 
 		String evLogDescr = "Event Log " + Integer.toString(index);
-		eRes.add(new EvaluationResults(evLogDescr, "Structured Miner", "CostBased", traceFitness1, 0.0));
+		double calcTime = ccm.getCalculationTime(repResult1);
+		double maxFitness = ccm.getMaxFitnessCost(repResult1);
 
+		eRes.add(new EvaluationResults(evLogDescr, "Structured Miner", "CostBased", calcTime, traceFitness1, maxFitness, 0.0));
+		
 		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
 		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
+		calcTime = ccm.getCalcTime(repResult2);
 
-		eRes.add(new EvaluationResults(evLogDescr, "Structured Miner", "Decomposed", 0.0, rawFitnessCost));
+		eRes.add(new EvaluationResults(evLogDescr, "Structured Miner", "Decomposed", calcTime, 0.0, 0.0, rawFitnessCost));
 
 		return pnet;
 	}
