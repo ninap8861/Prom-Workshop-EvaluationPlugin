@@ -45,6 +45,7 @@ public class ProcessDiscoveryMethods {
 //		if (index == 3 || index == 4) { //doesnt work for sap logs too large
 //			return null;
 //		}
+		System.out.println("Starting HILP");
 		HybridILPMinerPlugin hilp = new HybridILPMinerPlugin();
 		XEventClassifier classifierMap = XLogInfoImpl.STANDARD_CLASSIFIER;
 		Object[] obj = hilp.applyExpress(context, log, classifierMap);
@@ -60,12 +61,19 @@ public class ProcessDiscoveryMethods {
 		String evLogDescr = "Event Log " + Integer.toString(index);
 		eRes.add(new EvaluationResults(evLogDescr, "HILP", "CostBased", calcTime, traceFitness1, maxFitness, 0.0));
 
+		if(index != 1) { //BCP Event log is the first and doesnt work with decomposed
 		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
 		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
-		calcTime = ccm.getCalcTime(repResult2);
-
+		calcTime = ccm.getCalcTime(repResult2);			
 		eRes.add(new EvaluationResults(evLogDescr, "HILP", "Decomposed", calcTime, 0.0, 0.0, rawFitnessCost));
+		}
 
+//		PNRepResult repResult3 = ccm.applyApproximationAlignment(context, log, pnet);
+//		double traceFitness3 = ccm.getTraceFit(repResult3);
+//		calcTime = ccm.getCalculationTime(repResult3);
+//		eRes.add(new EvaluationResults(evLogDescr, "HILP", "AntiAlignment", calcTime, traceFitness3, 0.0, 0.0));
+		
+		System.out.println("Finished HILP");
 		return pnet;
 
 	}
@@ -73,6 +81,7 @@ public class ProcessDiscoveryMethods {
 	public Petrinet applyInductiveMiner(PluginContext context, XLog log, ArrayList<EvaluationResults> eRes, int index) {
 		//		XEventClassifier classifier = MiningParameters.getDefaultClassifier();
 		//		context.log("Started Inductive Miner", MessageLevel.NORMAL);
+		System.out.println("Starting Inductive Miner");
 		MiningParametersIMf param = new MiningParametersIMf();
 		IMPetriNet impetrinet = new IMPetriNet();
 		Object[] obj = impetrinet.minePetriNetParameters(context, log, param);
@@ -87,14 +96,19 @@ public class ProcessDiscoveryMethods {
 		double maxFitness = ccm.getMaxFitnessCost(repResult1);
 
 		eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "CostBased", calcTime, traceFitness1, maxFitness, 0.0));
-
+		
+		if(index != 1) { //BCP Event log is the first and doesnt work with decomposed
 		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
 		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
 		calcTime = ccm.getCalcTime(repResult2);
 		eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "Decomposed", calcTime, 0.0, 0.0, rawFitnessCost));
-
+		}
 //		PNRepResult repResult3 = ccm.applyApproximationAlignment(context, log, pnet);
-
+//		double traceFitness3 = ccm.getTraceFit(repResult3);
+//		calcTime = ccm.getCalculationTime(repResult3);
+//		eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "AntiAlignment", calcTime, traceFitness3, 0.0, 0.0));
+		
+		System.out.println("Finished Inductive Miner");
 		return pnet;
 	}
 
@@ -137,6 +151,7 @@ public class ProcessDiscoveryMethods {
 
 	public static Petrinet applySplitMiner(PluginContext context, XLog log, ArrayList<EvaluationResults> eRes,
 			int index) throws IOException {
+		System.out.println("Starting Split Miner");
 		String logPath = null;
 		XAttributeMap attrMap = log.getAttributes();
 		logPath = attrMap.get("path").toString();
@@ -168,18 +183,25 @@ public class ProcessDiscoveryMethods {
 		double maxFitness = ccm.getMaxFitnessCost(repResult1);
 
 		eRes.add(new EvaluationResults(evLogDescr, "Split Miner", "CostBased", calcTime, traceFitness1, maxFitness, 0.0));
-
+		
+		if(index != 1) { //BCP Event log is the first and doesnt work with decomposed
 		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
 		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
 		calcTime = ccm.getCalcTime(repResult2);
-
 		eRes.add(new EvaluationResults(evLogDescr, "Split Miner", "Decomposed", calcTime, 0.0, 0.0, rawFitnessCost));
-
+		}
+//		PNRepResult repResult3 = ccm.applyApproximationAlignment(context, log, pnet);
+//		double traceFitness3 = ccm.getTraceFit(repResult3);
+//		calcTime = ccm.getCalculationTime(repResult3);
+//		eRes.add(new EvaluationResults(evLogDescr, "Split Miner", "AntiAlignment", calcTime, traceFitness3, 0.0, 0.0));
+		
+		System.out.println("Finished Split Miner");
 		return pnet;
 	}
 
 	public static Petrinet applyStructuredMiner(PluginContext context, XLog log, ArrayList<EvaluationResults> eRes,
 			int index) throws IOException {
+		System.out.println("Starting Structured Miner");
 		String logPath = null;
 		XAttributeMap attrMap = log.getAttributes();
 		logPath = attrMap.get("path").toString();
@@ -214,12 +236,18 @@ public class ProcessDiscoveryMethods {
 
 		eRes.add(new EvaluationResults(evLogDescr, "Structured Miner", "CostBased", calcTime, traceFitness1, maxFitness, 0.0));
 		
+		if(index != 1) { //BCP Event log is the first and doesnt work with decomposed
 		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
 		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
-		calcTime = ccm.getCalcTime(repResult2);
-
+		calcTime = ccm.getCalcTime(repResult2);		 
 		eRes.add(new EvaluationResults(evLogDescr, "Structured Miner", "Decomposed", calcTime, 0.0, 0.0, rawFitnessCost));
-
+		}
+//		PNRepResult repResult3 = ccm.applyApproximationAlignment(context, log, pnet);
+//		double traceFitness3 = ccm.getTraceFit(repResult3);
+//		calcTime = ccm.getCalculationTime(repResult3);
+//		eRes.add(new EvaluationResults(evLogDescr, "Structured Miner", "AntiAlignment", calcTime, traceFitness3, 0.0, 0.0));
+		
+		System.out.println("Finishing Structured Miner");
 		return pnet;
 	}
 

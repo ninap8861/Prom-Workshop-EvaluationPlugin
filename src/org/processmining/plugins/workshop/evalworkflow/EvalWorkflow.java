@@ -41,8 +41,8 @@ public class EvalWorkflow {
 		Collection<XLog> logs = null;
 		Collection<Petrinet> pnCollection = new ArrayList<Petrinet>();
 		try {
-			//			logs = importLog("C:/Users/I519745/Desktop/Thesis/Thesis/EventLogs/");
-			logs = importLog("C:/Users/I519745/Desktop/Thesis/Thesis/structuredminer/logs/");
+						logs = importLog("C:/Users/I519745/Desktop/Thesis/Thesis/EventLogs/");
+//			logs = importLog("C:/Users/I519745/Desktop/Thesis/Thesis/structuredminer/logs/");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -54,17 +54,21 @@ public class EvalWorkflow {
 		int index = 0;
 		for (XLog log : logs) {
 			index = index + 1;
+			System.out.println("Event Log " + index);
 			Petrinet pn1 = null, pn2 = null, pn3 = null, pn4 = null, pn5 = null;
-
+			
+			if(index != 3) {
 			pn1 = pd.applyHILP(context, log, eRes, index);
 			pnCollection.add(pn1);
 			String path1 = "C:/Users/I519745/Desktop/Thesis/Thesis/PetriNets/petrinetHILP" + Integer.toString(index) + ".pnml";
 			File pn1f = new File(path1);
 			try {
 				savePetrinetToPnml(pn1, null, pn1f);
+				System.out.println("Saved Petri Net HILP of event log" + index);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
+			}
 			}
 
 			pn2 = pd.applyInductiveMiner(context, log, eRes, index);
@@ -74,18 +78,14 @@ public class EvalWorkflow {
 			File pn2f = new File(path2);
 			try {
 				savePetrinetToPnml(pn2, null, pn2f);
+				System.out.println("Saved Petri Net Inductive Miner of event log" + index);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 
-			//						try {
-			//							pn3 = pd.applyETM(context, log, eRes, index); //<--------------------------------Change this
-			//						} catch (ConnectionCannotBeObtained e) {
-			//							// TODO Auto-generated catch block
-			//							e.printStackTrace();
-			//						}
-			//						pnCollection.add(pn3);
+//			pn3 = pd.applyETM(context, log, eRes, index); //<--------------------------------Change this
+//			pnCollection.add(pn3);
 
 			try {
 				pn4 = pd.applySplitMiner(context, log, eRes, index);
@@ -98,6 +98,7 @@ public class EvalWorkflow {
 			File pn4f = new File(path4);
 			try {
 				savePetrinetToPnml(pn4, null, pn4f);
+				System.out.println("Saved Petri Net Split Miner of event log" + index);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -114,6 +115,7 @@ public class EvalWorkflow {
 			File pn5f = new File(path5);
 			try {
 				savePetrinetToPnml(pn5, null, pn5f);
+				System.out.println("Saved Petri Net Structured Miner of event log" + index);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -142,6 +144,7 @@ public class EvalWorkflow {
 			}
 			fw.flush();
 			fw.close();
+			System.out.println("Created CSV File with results");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

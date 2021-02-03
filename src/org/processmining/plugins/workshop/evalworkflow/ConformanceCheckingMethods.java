@@ -46,6 +46,15 @@ public class ConformanceCheckingMethods {
 		return 0.0;
 	}
 	
+	public double getTraceFit(PNRepResult replayResult) {
+		
+		if (!replayResult.isEmpty()) {
+			double fit = (Double) replayResult.getInfo().get("Trace Fitness");
+			return fit;
+		}
+		return 0.0;
+	}
+	
 	public double getMaxFitnessCost(PNRepResult replayResult) {
 		
 		if (!replayResult.isEmpty()) {
@@ -81,8 +90,9 @@ public class ConformanceCheckingMethods {
 		}
 		return 0.0;
 	}
-	
+		
 	public PNRepResult applyPNLogReplayer(PluginContext context, XLog log, Petrinet net) {
+		System.out.println("Starting Alignment Replayer");
 		PNLogReplayer replayer = new PNLogReplayer();
 		PetrinetReplayerWithoutILP replayerWithoutILP = new PetrinetReplayerWithoutILP();;
 		TransEvClassMapping transEventMap = computeTransEventMapping(log, net);
@@ -101,6 +111,7 @@ public class ConformanceCheckingMethods {
 		parameters.setMaxNumOfStates(200000);
 		
 		try {
+			System.out.println("Finished Alignment Replayer");
 			return replayer.replayLog(context, net, log, transEventMap, replayerWithoutILP, parameters);
 		} catch (AStarException e) {
 			// TODO Auto-generated catch block
@@ -111,17 +122,20 @@ public class ConformanceCheckingMethods {
 	}
 	
 	public PNRepResult applyDecomposedReplayer(PluginContext context, XLog log, Petrinet net) {
+		System.out.println("Starting Decomposed Replayer");
 		DecomposedReplayPlugin replayer = new DecomposedReplayPlugin();
 		AcceptingPetriNet apn = AcceptingPetriNetFactory.createAcceptingPetriNet(net);
 		DecomposedReplayParameters parameters = new DecomposedReplayParameters(log, apn);
 //		return replayer.apply(context, log, apn, parameters);
 		PNRepResult result = replayer.run(context, log, apn, parameters);
+		System.out.println("Finished Decomposed Replayer");
 		return result;
 		
 		
 	}
 	
 	public PNRepResult applyApproximationAlignment(PluginContext context, XLog log, Petrinet net) {
+		System.out.println("Starting Approximation Alignment");
 		PNLogReplayer replayer = new PNLogReplayer();
 		PetrinetReplayerWithoutILP replayerWithoutILP = new PetrinetReplayerWithoutILP();;
 		TransEvClassMapping transEventMap = computeTransEventMapping(log, net);
@@ -152,6 +166,7 @@ public class ConformanceCheckingMethods {
 		AntiAlignmentParameters aaParams = new AntiAlignmentParameters(5, 1, 1, 2); //default params
 		if(!alignments.isEmpty()) {
 			PNRepResult result = aap.measurePrecision(context, net, log, alignments, aaParams);
+			System.out.println("Finished Approximation Alignments");
 			return result;
 		}
 		
