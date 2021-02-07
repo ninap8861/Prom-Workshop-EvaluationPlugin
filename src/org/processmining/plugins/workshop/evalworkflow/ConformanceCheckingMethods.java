@@ -48,8 +48,8 @@ public class ConformanceCheckingMethods {
 	
 	public double getTraceFit(PNRepResult replayResult) {
 		
-		if (!replayResult.isEmpty()) {
-			double fit = (Double) replayResult.getInfo().get("Trace Fitness");
+		if (replayResult != null) {
+			double fit = Double.parseDouble((String) replayResult.getInfo().get("Trace Fitness"));
 			return fit;
 		}
 		return 0.0;
@@ -84,8 +84,8 @@ public class ConformanceCheckingMethods {
 	
 	public double getCalcTime(PNRepResult replayResult) {
 		
-		if (!replayResult.isEmpty()) {
-			double time = (Double) replayResult.getInfo().get("Calculation Time (ms)");
+		if (replayResult != null) {
+			double time = (Double)  replayResult.getInfo().get("Calculation Time (ms)");
 			return time;
 		}
 		return 0.0;
@@ -209,35 +209,7 @@ public class ConformanceCheckingMethods {
 		return mapping;
 	}
 	
-//	public double traceFitness(XTrace trace) {
-//		Map<List<String>, Double> fitnessMap = new HashMap<List<String>, Double>();
-//		
-//		List<String> traceLabelList = traceToLabelList(trace);
-//		if (fitnessMap.containsKey(traceLabelList)) {
-//			return fitnessMap.get(traceLabelList);
-//		}
-//		
-//		XLog log2 = XFactoryRegistry.instance().currentDefault().createLog();
-//		log2.add(trace);
-//
-//		try {
-//			PNRepResult replayRes = applyPNLogRepla;
-//			if (!replayRes.isEmpty()) {
-//				double fit = (Double) replayRes.getInfo().get(PNRepResult.TRACEFITNESS);
-//				fitnessMap.put(traceLabelList, fit);
-//				return fit;
-//			}
-//
-//		} catch (AStarException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (NullPointerException e) {
-//			e.printStackTrace();
-//		}
-//		return 0.0;
-//	}
-	
-	
+
 	public static List<String> traceToLabelList(XTrace trace) {
 		List<String> res = new ArrayList<String>();
 		Iterator<XEvent> eventIter = trace.iterator();
@@ -247,23 +219,5 @@ public class ConformanceCheckingMethods {
 		}
 		return res;
 	}
-//
-//	
-//
-//
-//	public boolean isConformant(XTrace trace) {
-//		return (traceFitness(trace) == 1.0);
-//	}
-
-//
-//	public double computeConformance(XTrace trace, ConformanceMode conformanceMode) {
-//		if (conformanceMode == ConformanceMode.FITNESS) {
-//			return traceFitness(trace);
-//		}
-//		if (isConformant(trace)) {
-//			return 1.0;
-//		}
-//		return 0.0;
-//	}
 
 }

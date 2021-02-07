@@ -7,5 +7,6 @@
 	<classpathentry kind="lib" path="C:/Program Files (x86)/LPSolve IDE"/>
 	<classpathentry kind="lib" path="C:/Users/I519745/Desktop/Thesis/Thesis/split-miner-2.0/sm2.jar" sourcepath="C:/Users/I519745/Desktop/Thesis/Thesis/split-miner-2.0"/>
 	<classpathentry kind="lib" path="C:/Users/I519745/Desktop/Thesis/Thesis/structuredminer/StructuredMiner.jar"/>
+	<classpathentry kind="lib" path="/IncrementalPM" sourcepath="/IncrementalPM"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
