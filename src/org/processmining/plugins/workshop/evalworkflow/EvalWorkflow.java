@@ -55,10 +55,11 @@ public class EvalWorkflow {
 		for (XLog log : logs) {
 			index = index + 1;
 			System.out.println("Event Log " + index);
-			Petrinet pn1 = null, pn2 = null, pn3 = null, pn4 = null, pn5 = null;
-
+			
+			if(log.getAttributes().get("name").toString() != "10.SCPABAPUpdateSystemV1.xes") {
 			pd.applyHILP(context, log, eRes, index);	
-
+			}
+			
 			pd.applyInductiveMiner(context, log, eRes, index);
 			
 			try {
@@ -122,6 +123,8 @@ public class EvalWorkflow {
 			if (logs.size() > 0) {
 				logs.iterator().next().getAttributes().put("path",
 						new XAttributeLiteralImpl("Path", logFile.getAbsolutePath()));
+				logs.iterator().next().getAttributes().put("name",
+						new XAttributeLiteralImpl("Name", logFile.getName()));
 				collectionLogs.add(logs.iterator().next());
 			}
 		}

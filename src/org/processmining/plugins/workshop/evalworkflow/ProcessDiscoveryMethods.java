@@ -15,6 +15,7 @@ import org.deckfour.xes.classification.XEventClassifier;
 import org.deckfour.xes.info.impl.XLogInfoImpl;
 import org.deckfour.xes.model.XAttributeMap;
 import org.deckfour.xes.model.XLog;
+import org.processmining.contexts.uitopia.UIPluginContext;
 import org.processmining.framework.plugin.PluginContext;
 import org.processmining.hybridilpminer.plugins.HybridILPMinerPlugin;
 import org.processmining.models.connections.GraphLayoutConnection;
@@ -32,6 +33,8 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import com.raffaeleconforti.conversion.bpmn.BPMNToPetriNetConverter;
+
+import ressources.GlobalConformanceResult;
 
 public class ProcessDiscoveryMethods {
 
@@ -52,24 +55,35 @@ public class ProcessDiscoveryMethods {
 		double calcTime = ccm.getCalculationTime(repResult1);
 		double maxFitness = ccm.getMaxFitnessCost(repResult1);
 
-		String evLogDescr = "Event Log " + Integer.toString(index);
+		String evLogDescr = "Event Log " + log.getAttributes().get("name");
 		eRes.add(new EvaluationResults(evLogDescr, "HILP", "CostBased", calcTime, traceFitness1, maxFitness, 0.0));
 
-		if (index != 5) { //BCP Event log doesnt work with decomposed
+//		if (index != 5) { //BCP Event log doesnt work with decomposed
 			PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
 			double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
 			calcTime = ccm.getCalcTime(repResult2);
 			eRes.add(new EvaluationResults(evLogDescr, "HILP", "Decomposed", calcTime, 0.0, 0.0, rawFitnessCost));
-		}
+//		}
 
 		PNRepResult repResult3 = ccm.applyApproximationAlignment(context, log, pnet);
 		double traceFitness3 = ccm.getTraceFit(repResult3);
 		calcTime = ccm.getCalcTime(repResult3);
 		eRes.add(new EvaluationResults(evLogDescr, "HILP", "AntiAlignment", calcTime, traceFitness3, 0.0, 0.0));
-
+		
+		GlobalConformanceResult result4 = null;
+		try {
+			result4 = ccm.applySampleBasedApproximation((UIPluginContext) context, log, pnet);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		double traceFitness4 = result4.getFitness();
+		eRes.add(new EvaluationResults(evLogDescr, "HILP", "Sampling Approximatino", 0.0, traceFitness4, 0.0,
+				0.0));
+		
 		System.out.println("Finishing HILP");
 		String path = "C:/Users/I519745/Desktop/Thesis/Thesis/PetriNets/petrinethilpminer"
-				+ Integer.toString(index) + ".pnml";
+				+ log.getAttributes().get("name") + ".pnml";
 		try {
 			savePetrinetToPnml(pnet, null, new File(path));
 		} catch (IOException e) {
@@ -89,9 +103,10 @@ public class ProcessDiscoveryMethods {
 		Petrinet pnet = (Petrinet) obj[0];
 
 		//call all conformance checking techniques here
+		String evLogDescr = "Event Log " + log.getAttributes().get("name");
 		ConformanceCheckingMethods ccm = new ConformanceCheckingMethods();
+
 		PNRepResult repResult1 = ccm.applyPNLogReplayer(context, log, pnet);
-		String evLogDescr = "Event Log " + Integer.toString(index);
 		double traceFitness1 = ccm.getTraceFitness(repResult1);
 		double calcTime = ccm.getCalculationTime(repResult1);
 		double maxFitness = ccm.getMaxFitnessCost(repResult1);
@@ -106,15 +121,27 @@ public class ProcessDiscoveryMethods {
 			eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "Decomposed", calcTime, 0.0, 0.0,
 					rawFitnessCost));
 		}
+		
 		PNRepResult repResult3 = ccm.applyApproximationAlignment(context, log, pnet);
 		double traceFitness3 = ccm.getTraceFit(repResult3);
 		calcTime = ccm.getCalcTime(repResult3);
 		eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "AntiAlignment", calcTime, traceFitness3, 0.0,
 				0.0));
-
+		
+		GlobalConformanceResult result4 = null;
+		try {
+			result4 = ccm.applySampleBasedApproximation((UIPluginContext) context, log, pnet);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		double traceFitness4 = result4.getFitness();
+		eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "Sampling Approximatino", 0.0, traceFitness4, 0.0,
+				0.0));
+		
 		System.out.println("Finished Inductive Miner");
 		String path = "C:/Users/I519745/Desktop/Thesis/Thesis/PetriNets/petrinetinductiveminer"
-				+ Integer.toString(index) + ".pnml";
+				+ log.getAttributes().get("name") + ".pnml";
 		try {
 			savePetrinetToPnml(pnet, null, new File(path));
 		} catch (IOException e) {
@@ -176,7 +203,7 @@ public class ProcessDiscoveryMethods {
 				"SM2", logPath, outputPath, "0.05" }, null, dir);
 		Bpmn bpmnModel = null;
 		try {
-			TimeUnit.SECONDS.sleep(2);
+			TimeUnit.SECONDS.sleep(5);
 			bpmnModel = importBPMN(importPath);
 			if (bpmnModel == null) {
 				System.out.println("BPMN Empty");
@@ -194,7 +221,7 @@ public class ProcessDiscoveryMethods {
 		PNRepResult repResult1 = ccm.applyPNLogReplayer(context, log, pnet);
 		double traceFitness1 = ccm.getTraceFitness(repResult1);
 
-		String evLogDescr = "Event Log " + Integer.toString(index);
+		String evLogDescr = "Event Log " + log.getAttributes().get("name");
 		double calcTime = ccm.getCalculationTime(repResult1);
 		double maxFitness = ccm.getMaxFitnessCost(repResult1);
 
@@ -212,9 +239,20 @@ public class ProcessDiscoveryMethods {
 		double traceFitness3 = ccm.getTraceFit(repResult3);
 		calcTime = ccm.getCalcTime(repResult3);
 		eRes.add(new EvaluationResults(evLogDescr, "Split Miner", "AntiAlignment", calcTime, traceFitness3, 0.0, 0.0));
-
+		
+		GlobalConformanceResult result4 = null;
+		try {
+			result4 = ccm.applySampleBasedApproximation((UIPluginContext) context, log, pnet);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		double traceFitness4 = result4.getFitness();
+		eRes.add(new EvaluationResults(evLogDescr, "Split Miner", "Sampling Approximatino", 0.0, traceFitness4, 0.0,
+				0.0));
+		
 		System.out.println("Finished Split Miner");
-		String path = "C:/Users/I519745/Desktop/Thesis/Thesis/PetriNets/petrinetsplitminer" + Integer.toString(index)
+		String path = "C:/Users/I519745/Desktop/Thesis/Thesis/PetriNets/petrinetsplitminer" + log.getAttributes().get("name")
 				+ ".pnml";
 		savePetrinetToPnml(pnet, null, new File(path));
 		System.out.println("Saved Petri Net Split Miner");
@@ -236,10 +274,10 @@ public class ProcessDiscoveryMethods {
 
 		Bpmn bpmnModel = null;
 		try {
-			TimeUnit.SECONDS.sleep(2);
+			TimeUnit.SECONDS.sleep(5);
 			bpmnModel = importBPMN(importPath);
 			if (bpmnModel == null) {
-				System.out.print("BPMN Empty");
+				System.out.println("BPMN Empty");
 				return;
 			}
 		} catch (Exception e) {
@@ -254,7 +292,7 @@ public class ProcessDiscoveryMethods {
 		PNRepResult repResult1 = ccm.applyPNLogReplayer(context, log, pnet);
 		double traceFitness1 = ccm.getTraceFitness(repResult1);
 
-		String evLogDescr = "Event Log " + Integer.toString(index);
+		String evLogDescr = "Event Log " + log.getAttributes().get("name");
 		double calcTime = ccm.getCalculationTime(repResult1);
 		double maxFitness = ccm.getMaxFitnessCost(repResult1);
 
@@ -273,9 +311,20 @@ public class ProcessDiscoveryMethods {
 		calcTime = ccm.getCalcTime(repResult3);
 		eRes.add(new EvaluationResults(evLogDescr, "Structured Miner", "AntiAlignment", calcTime, traceFitness3, 0.0,
 				0.0));
-
+		
+		GlobalConformanceResult result4 = null;
+		try {
+			result4 = ccm.applySampleBasedApproximation((UIPluginContext) context, log, pnet);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		double traceFitness4 = result4.getFitness();
+		eRes.add(new EvaluationResults(evLogDescr, "Structured Miner", "Sampling Approximatino", 0.0, traceFitness4, 0.0,
+				0.0));
+		
 		System.out.println("Finishing Structured Miner");
-		String path = "C:/Users/I519745/Desktop/Thesis/Thesis/PetriNets/petrinetstructured" + Integer.toString(index)
+		String path = "C:/Users/I519745/Desktop/Thesis/Thesis/PetriNets/petrinetstructured" + log.getAttributes().get("name")
 				+ ".pnml";
 		savePetrinetToPnml(pnet, null, new File(path));
 		System.out.println("Saved Petri Net Structured Miner");
