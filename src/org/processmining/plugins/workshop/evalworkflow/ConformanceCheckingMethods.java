@@ -121,7 +121,7 @@ public class ConformanceCheckingMethods {
 		parameters.setMaxNumOfStates(200000);
 
 		try {
-			System.out.println("Finished Alignment Replayer");
+			
 			return replayer.replayLog(context, net, log, transEventMap, replayerWithoutILP, parameters);
 		} catch (AStarException e) {
 			// TODO Auto-generated catch block
@@ -145,6 +145,8 @@ public class ConformanceCheckingMethods {
 
 	public PNRepResult applyApproximationAlignment(PluginContext context, XLog log, Petrinet net) {
 		System.out.println("Starting Approximation Alignment");
+		
+		//calculate alignments by using a replayer
 		PNLogReplayer replayer = new PNLogReplayer();
 		PetrinetReplayerWithoutILP replayerWithoutILP = new PetrinetReplayerWithoutILP();
 		;
@@ -171,11 +173,15 @@ public class ConformanceCheckingMethods {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		
+		//get result based on alignments
 		AntiAlignmentPlugin aap = new AntiAlignmentPlugin();
 		AntiAlignmentParameters aaParams = new AntiAlignmentParameters(5, 1, 1, 2); //default params
+		XEventClassifier eventClassifier = XLogInfoImpl.NAME_CLASSIFIER;
 		if (!alignments.isEmpty()) {
-			PNRepResult result = aap.measurePrecision(context, net, log, alignments, aaParams);
+//			PNRepResult result = aap.measurePrecision(context, net, log, alignments, aaParams);
+			PNRepResult result = aap.basicCodeStructureWithAlignments(null, net, apn.getInitialMarking(), getFinalMarking(net),
+					log, alignments, computeTransEventMapping(log, net), aaParams);
 			System.out.println("Finished Approximation Alignments");
 			return result;
 		}
@@ -213,7 +219,7 @@ public class ConformanceCheckingMethods {
 			XLog log, IncrementalTraceAnalyzer<?> analyzer, IccParameter iccParameters,
 			QualityCheckManager internalQualityCheckManager, QualityCheckManager externalQualityCheckManager) {
 		IncrementalConformanceChecker icc = new IncrementalConformanceChecker(analyzer, iccParameters);
-		return icc.apply(context, log, net, IncrementalConformanceChecker.SamplingMode.BINOMIAL);
+		return icc.apply(context, log, net, IncrementalConformanceChecker.SamplingMode.BINOMIAL); //IncrementalConformanceChecker.SamplingMode.BINOMIAL
 	}
 
 	private Marking getFinalMarking(Petrinet net) {
@@ -260,5 +266,5 @@ public class ConformanceCheckingMethods {
 		}
 		return res;
 	}
-
+	
 }

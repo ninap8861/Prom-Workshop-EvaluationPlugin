@@ -19,9 +19,8 @@ import org.processmining.models.graphbased.directed.petrinet.Petrinet;
 
 public class EvalWorkflow {
 
-	@Plugin(name = "Evaluation Workflow", parameterLabels = { "Event Log 1" }, returnLabels = { "Petri Net 1",
-			"Petri Net 2", "Petri Net 3", "Petri Net 4" }, returnTypes = { Petrinet.class, Petrinet.class,
-					Petrinet.class, Petrinet.class }, userAccessible = true, help = "Outputs the Petri Nets")
+	@Plugin(name = "Evaluation Workflow", parameterLabels = { "Event Log 1" }, returnLabels = {
+			"Petri Net 1" }, returnTypes = { Petrinet.class }, userAccessible = true, help = "Outputs the Petri Nets")
 
 	@UITopiaVariant(affiliation = "University of Mannheim", author = "Antonina Prendi", email = "aprendi@mail.uni-mannheim.de")
 	//	@PluginVariant(variantLabel = "Default Run", requiredParameterLabels = {})
@@ -31,7 +30,7 @@ public class EvalWorkflow {
 
 	public static Object[] convertToArray(UIPluginContext context) {
 		Collection<XLog> logs = null;
-//		Collection<Petrinet> pnCollection = new ArrayList<Petrinet>();
+		//		Collection<Petrinet> pnCollection = new ArrayList<Petrinet>();
 		try {
 			logs = importLog("C:/Users/I519745/Desktop/Thesis/Thesis/EventLogs/");
 			//			logs = importLog("C:/Users/I519745/Desktop/Thesis/Thesis/structuredminer/logs/");
@@ -55,31 +54,32 @@ public class EvalWorkflow {
 		for (XLog log : logs) {
 			index = index + 1;
 			System.out.println("Event Log " + index);
-			
-			if(log.getAttributes().get("name").toString() != "10.SCPABAPUpdateSystemV1.xes") {
-			pd.applyHILP(context, log, eRes, index);	
-			}
-			
+
+			pd.applyHILP(context, log, eRes, index);
+
 			pd.applyInductiveMiner(context, log, eRes, index);
-			
+
 			try {
 				pd.applySplitMiner(context, log, eRes, index);
-				
+
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			try {
-				pd.applyStructuredMiner(context, log, eRes, index);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+
+			if (!log.getAttributes().get("name").toString().equals("9.Artificial4.xes")
+					&& !log.getAttributes().get("name").toString().equals("14.RoadTrafficManagement.xes")) {
+				try {
+					pd.applyStructuredMiner(context, log, eRes, index);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 
 		}
 
-//		Object[] object = pnCollection.toArray(new Object[pnCollection.size()]);
+		//		Object[] object = pnCollection.toArray(new Object[pnCollection.size()]);
 
 		try {
 			createCSVFile(eRes);
