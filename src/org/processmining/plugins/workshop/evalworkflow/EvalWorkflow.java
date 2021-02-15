@@ -53,7 +53,7 @@ public class EvalWorkflow {
 		}
 		for (XLog log : logs) {
 			index = index + 1;
-			System.out.println("Event Log " + index);
+			System.out.println("Event Log " + index);				
 
 			pd.applyHILP(context, log, eRes, index);
 
@@ -96,11 +96,11 @@ public class EvalWorkflow {
 		try (CSVPrinter printer = new CSVPrinter(fw,
 				CSVFormat.DEFAULT
 						.withHeader("Event Log", "Process Discovery Method", "Conformance Checking Method",
-								"Calculation Time ms", "Trace Fitness", "Max Fitness Cost", "Raw Fitness Cost")
+								"Calculation Time ms", "Trace Fitness", "Max Fitness Cost", "Raw Fitness Cost", "Precision", "Generalization")
 						.withRecordSeparator("\n"))) {
 			for (EvaluationResults result : eRes) {
 				printer.printRecord(result.eventLog, result.processDisc, result.confCheck, result.calcTime,
-						result.traceFitness, result.maxFitnessCost, result.rawFitnessCost);
+						result.traceFitness, result.maxFitnessCost, result.rawFitnessCost, result.precision, result.generalization);
 			}
 			fw.flush();
 			fw.close();

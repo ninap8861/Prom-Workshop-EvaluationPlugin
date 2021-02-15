@@ -8,8 +8,11 @@ public class EvaluationResults {
 	double traceFitness;
 	double maxFitnessCost;
 	double rawFitnessCost;
+	double precision;
+	double generalization;
 	
-	public EvaluationResults(String eventLog, String processDiscovery, String conformanceChecking, double calcTime, double traceFitness, double maxFitnessCost, double rawFitnessCost) {
+	public EvaluationResults(String eventLog, String processDiscovery, String conformanceChecking, double calcTime, double traceFitness, double maxFitnessCost, double rawFitnessCost,
+			double precision, double generalization) {
 		// TODO Auto-generated constructor stub
 		this.eventLog = eventLog;
 		this.processDisc = processDiscovery;
@@ -18,6 +21,8 @@ public class EvaluationResults {
 		this.maxFitnessCost = maxFitnessCost;
 		this.traceFitness = traceFitness;
 		this.rawFitnessCost = rawFitnessCost;
+		this.precision = precision;
+		this.generalization = generalization;
 	}
 
 }

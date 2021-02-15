@@ -62,6 +62,24 @@ public class ConformanceCheckingMethods {
 		}
 		return 0.0;
 	}
+	
+	public double getPrecision(PNRepResult replayResult) {
+
+		if (replayResult != null) {
+			double fit = Double.parseDouble((String) replayResult.getInfo().get("Precision"));
+			return fit;
+		}
+		return 0.0;
+	}
+	
+	public double getGeneralization(PNRepResult replayResult) {
+
+		if (replayResult != null) {
+			double fit = Double.parseDouble((String) replayResult.getInfo().get("Generalization"));
+			return fit;
+		}
+		return 0.0;
+	}
 
 	public double getMaxFitnessCost(PNRepResult replayResult) {
 
@@ -85,6 +103,15 @@ public class ConformanceCheckingMethods {
 
 		if (!replayResult.isEmpty()) {
 			double fit = (Double) replayResult.getInfo().get("Raw Fitness Cost");
+			return fit;
+		}
+		return 0.0;
+	}
+	
+	public double getRawFitCost(PNRepResult replayResult) {
+
+		if (!replayResult.isEmpty()) {
+			double fit = (Double) replayResult.getInfo().get(PNRepResult.RAWFITNESSCOST);
 			return fit;
 		}
 		return 0.0;

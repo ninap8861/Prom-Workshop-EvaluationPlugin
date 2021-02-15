@@ -53,20 +53,23 @@ public class ProcessDiscoveryMethods {
 		double traceFitness1 = ccm.getTraceFitness(repResult1);
 		double calcTime = ccm.getCalculationTime(repResult1);
 		double maxFitness = ccm.getMaxFitnessCost(repResult1);
-
+		double rawFit = ccm.getRawFitCost(repResult1);
+//
 		String evLogDescr = "Event Log " + log.getAttributes().get("name");
-		eRes.add(new EvaluationResults(evLogDescr, "HILP", "CostBased", calcTime, traceFitness1, maxFitness, 0.0));
+		eRes.add(new EvaluationResults(evLogDescr, "HILP", "CostBased", calcTime, traceFitness1, maxFitness, rawFit, 0.0, 0.0));
 
 		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
 		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
 		calcTime = ccm.getCalcTime(repResult2);
-		eRes.add(new EvaluationResults(evLogDescr, "HILP", "Decomposed", calcTime, 0.0, 0.0, rawFitnessCost));
+		eRes.add(new EvaluationResults(evLogDescr, "HILP", "Decomposed", calcTime, 0.0, 0.0, rawFitnessCost, 0.0, 0.0));
 
 		if (!log.getAttributes().get("name").toString().equals("14.RoadTrafficManagement.xes")) {
 			PNRepResult repResult3 = ccm.applyApproximationAlignment(context, log, pnet);
 			double traceFitness3 = ccm.getTraceFit(repResult3);
 			calcTime = ccm.getCalcTime(repResult3);
-			eRes.add(new EvaluationResults(evLogDescr, "HILP", "AntiAlignment", calcTime, traceFitness3, 0.0, 0.0));
+			double precision = ccm.getPrecision(repResult3);
+			double generalization = ccm.getGeneralization(repResult3);
+			eRes.add(new EvaluationResults(evLogDescr, "HILP", "AntiAlignment", calcTime, traceFitness3, 0.0, 0.0, precision, generalization));
 		}
 		GlobalConformanceResult result4 = null;
 		try {
@@ -76,7 +79,7 @@ public class ProcessDiscoveryMethods {
 			e1.printStackTrace();
 		}
 		double traceFitness4 = result4.getFitness();
-		eRes.add(new EvaluationResults(evLogDescr, "HILP", "Sampling Approximatino", 0.0, traceFitness4, 0.0, 0.0));
+		eRes.add(new EvaluationResults(evLogDescr, "HILP", "Sampling Approximatino", 0.0, traceFitness4, 0.0, 0.0, 0.0, 0.0));
 
 		System.out.println("Finishing HILP");
 		String path = "C:/Users/I519745/Desktop/Thesis/Thesis/PetriNets/petrinethilpminer"
@@ -108,23 +111,25 @@ public class ProcessDiscoveryMethods {
 		double traceFitness1 = ccm.getTraceFitness(repResult1);
 		double calcTime = ccm.getCalculationTime(repResult1);
 		double maxFitness = ccm.getMaxFitnessCost(repResult1);
-
+		double rawFit = ccm.getRawFitCost(repResult1);
 		eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "CostBased", calcTime, traceFitness1, maxFitness,
-				0.0));
+				rawFit, 0.0, 0.0));
 
 		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
 		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
 		calcTime = ccm.getCalcTime(repResult2);
 		eRes.add(
-				new EvaluationResults(evLogDescr, "Inductive Miner", "Decomposed", calcTime, 0.0, 0.0, rawFitnessCost));
+				new EvaluationResults(evLogDescr, "Inductive Miner", "Decomposed", calcTime, 0.0, 0.0, rawFitnessCost, 0.0, 0.0));
 
 		if (!log.getAttributes().get("name").toString().equals("14.RoadTrafficManagement.xes")
 				&& !log.getAttributes().get("name").toString().equals("5.BCPEventLogwithouttimestamps.xes")) {
 			PNRepResult repResult3 = ccm.applyApproximationAlignment(context, log, pnet);
 			double traceFitness3 = ccm.getTraceFit(repResult3);
 			calcTime = ccm.getCalcTime(repResult3);
+			double precision = ccm.getPrecision(repResult3);
+			double generalization = ccm.getGeneralization(repResult3);
 			eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "AntiAlignment", calcTime, traceFitness3, 0.0,
-					0.0));
+					0.0, precision, generalization));
 		}
 		if (!log.getAttributes().get("name").toString().equals("5.BCPEventLogwithouttimestamps.xes")) {
 			GlobalConformanceResult result4 = null;
@@ -136,7 +141,7 @@ public class ProcessDiscoveryMethods {
 			}
 			double traceFitness4 = result4.getFitness();
 			eRes.add(new EvaluationResults(evLogDescr, "Inductive Miner", "Sampling Approximatino", 0.0, traceFitness4,
-					0.0, 0.0));
+					0.0, 0.0, 0.0, 0.0));
 		}
 
 		System.out.println("Finished Inductive Miner");
@@ -201,22 +206,24 @@ public class ProcessDiscoveryMethods {
 			double traceFitness1 = ccm.getTraceFitness(repResult1);
 			double calcTime = ccm.getCalculationTime(repResult1);
 			double maxFitness = ccm.getMaxFitnessCost(repResult1);
-
+			double rawFit = ccm.getRawFitCost(repResult1);
 			eRes.add(new EvaluationResults(evLogDescr, "Split Miner", "CostBased", calcTime, traceFitness1, maxFitness,
-					0.0));
+					rawFit, 0.0, 0.0));
 		}
 		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
 		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
 		double calcTime = ccm.getCalcTime(repResult2);
-		eRes.add(new EvaluationResults(evLogDescr, "Split Miner", "Decomposed", calcTime, 0.0, 0.0, rawFitnessCost));
+		eRes.add(new EvaluationResults(evLogDescr, "Split Miner", "Decomposed", calcTime, 0.0, 0.0, rawFitnessCost, 0.0, 0.0));
 
 		if (!log.getAttributes().get("name").toString().equals("14.RoadTrafficManagement.xes")
 				&& !log.getAttributes().get("name").toString().equals("2.LoanApprovalConfiguration1Artificial.xes")) {
 			PNRepResult repResult3 = ccm.applyApproximationAlignment(context, log, pnet);
 			double traceFitness3 = ccm.getTraceFit(repResult3);
 			calcTime = ccm.getCalcTime(repResult3);
+			double precision = ccm.getPrecision(repResult3);
+			double generalization = ccm.getGeneralization(repResult3);
 			eRes.add(new EvaluationResults(evLogDescr, "Split Miner", "AntiAlignment", calcTime, traceFitness3, 0.0,
-					0.0));
+					0.0, precision, generalization));
 		}
 		if (!log.getAttributes().get("name").toString().equals("2.LoanApprovalConfiguration1Artificial.xes")
 				&& !log.getAttributes().get("name").toString().equals("6.Artificial3.xes")
@@ -230,7 +237,7 @@ public class ProcessDiscoveryMethods {
 			}
 			double traceFitness4 = result4.getFitness();
 			eRes.add(new EvaluationResults(evLogDescr, "Split Miner", "Sampling Approximatino", 0.0, traceFitness4, 0.0,
-					0.0));
+					0.0, 0.0, 0.0));
 		}
 		System.out.println("Finished Split Miner");
 		String path = "C:/Users/I519745/Desktop/Thesis/Thesis/PetriNets/petrinetsplitminer"
@@ -290,23 +297,26 @@ public class ProcessDiscoveryMethods {
 		String evLogDescr = "Event Log " + log.getAttributes().get("name");
 		double calcTime = ccm.getCalculationTime(repResult1);
 		double maxFitness = ccm.getMaxFitnessCost(repResult1);
+		double rawFit = ccm.getRawFitCost(repResult1);
 
 		eRes.add(new EvaluationResults(evLogDescr, "Structured Miner", "CostBased", calcTime, traceFitness1, maxFitness,
-				0.0));
+				rawFit, 0.0, 0.0));
 
 		PNRepResult repResult2 = ccm.applyDecomposedReplayer(context, log, pnet);
 		double rawFitnessCost = ccm.getRawFitnessCost(repResult2);
 		calcTime = ccm.getCalcTime(repResult2);
 		eRes.add(new EvaluationResults(evLogDescr, "Structured Miner", "Decomposed", calcTime, 0.0, 0.0,
-				rawFitnessCost));
+				rawFitnessCost, 0.0, 0.0));
 
 		if (!log.getAttributes().get("name").toString().equals("14.RoadTrafficManagement.xes")
 				&& !log.getAttributes().get("name").toString().equals("5.BCPEventLogwithouttimestamps.xes")) {
 			PNRepResult repResult3 = ccm.applyApproximationAlignment(context, log, pnet);
 			double traceFitness3 = ccm.getTraceFit(repResult3);
 			calcTime = ccm.getCalcTime(repResult3);
+			double precision = ccm.getPrecision(repResult3);
+			double generalization = ccm.getGeneralization(repResult3);
 			eRes.add(new EvaluationResults(evLogDescr, "Structured Miner", "AntiAlignment", calcTime, traceFitness3,
-					0.0, 0.0));
+					0.0, 0.0, precision, generalization));
 		}
 
 		if (!log.getAttributes().get("name").toString().equals("5.BCPEventLogwithouttimestamps.xes")) {
@@ -319,7 +329,7 @@ public class ProcessDiscoveryMethods {
 			}
 			double traceFitness4 = result4.getFitness();
 			eRes.add(new EvaluationResults(evLogDescr, "Structured Miner", "Sampling Approximatino", 0.0, traceFitness4,
-					0.0, 0.0));
+					0.0, 0.0, 0.0, 0.0));
 		}
 		System.out.println("Finishing Structured Miner");
 		String path = "C:/Users/I519745/Desktop/Thesis/Thesis/PetriNets/petrinetstructured"
