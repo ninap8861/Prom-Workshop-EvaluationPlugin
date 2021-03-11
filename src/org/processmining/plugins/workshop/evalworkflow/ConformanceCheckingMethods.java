@@ -206,7 +206,6 @@ public class ConformanceCheckingMethods {
 		AntiAlignmentParameters aaParams = new AntiAlignmentParameters(5, 1, 1, 2); //default params
 		XEventClassifier eventClassifier = XLogInfoImpl.NAME_CLASSIFIER;
 		if (!alignments.isEmpty()) {
-//			PNRepResult result = aap.measurePrecision(context, net, log, alignments, aaParams);
 			PNRepResult result = aap.basicCodeStructureWithAlignments(null, net, apn.getInitialMarking(), getFinalMarking(net),
 					log, alignments, computeTransEventMapping(log, net), aaParams);
 			System.out.println("Finished Approximation Alignments");
@@ -216,7 +215,7 @@ public class ConformanceCheckingMethods {
 		return null;
 	}
 
-	public GlobalConformanceResult applySampleBasedApproximation(UIPluginContext context, XLog log, Petrinet net)
+	public SampleResults applySampleBasedApproximation(UIPluginContext context, XLog log, Petrinet net)
 			throws Exception {
 		System.out.println("Starting Sample Based Approximation");
 		TransEvClassMapping mapping = computeTransEventMapping(log, net);
@@ -227,25 +226,27 @@ public class ConformanceCheckingMethods {
 				false, false, false);
 		PetrinetGraph netGraph = net;
 		XLog copyLog = (XLog) log.clone();
-//		Replayer replayer = ReplayerFactory.createReplayer(netGraph, copyLog, mapping, classifierMap, true);
+		
 		ResourceAssignment resAssignment = new ResourceAssignment();
 		IncrementalTraceAnalyzer<?> analyzer = TraceAnalyzerFactory.createTraceAnalyzer(settings, mapping,
 				classifierMap, copyLog, netGraph, resAssignment);
-		long start = System.currentTimeMillis();
+		long start = System.nanoTime();
 		GlobalConformanceResult result = checkForGlobalConformanceWithICC(context, net, copyLog, analyzer, settings,
-				null, null);
-		long end = System.currentTimeMillis();
+				null, null, System.currentTimeMillis());
+		long end = System.nanoTime();
 		System.out.println("Finishing Sample Based Approximation");
 		System.out.println("Fitness: " + result.getFitness());
+		long time = end-start;
 		System.out.println(end-start);
-		return result;
+		SampleResults sresult = new SampleResults(result, time);
+		return sresult;
 
 	}
 
 	private GlobalConformanceResult checkForGlobalConformanceWithICC(UIPluginContext context, PetrinetGraph net,
 			XLog log, IncrementalTraceAnalyzer<?> analyzer, IccParameter iccParameters,
-			QualityCheckManager internalQualityCheckManager, QualityCheckManager externalQualityCheckManager) {
-		IncrementalConformanceChecker icc = new IncrementalConformanceChecker(analyzer, iccParameters);
+			QualityCheckManager internalQualityCheckManager, QualityCheckManager externalQualityCheckManager, long seed) {
+		IncrementalConformanceChecker icc = new IncrementalConformanceChecker(analyzer, iccParameters, seed);
 		return icc.apply(context, log, net, IncrementalConformanceChecker.SamplingMode.BINOMIAL); //IncrementalConformanceChecker.SamplingMode.BINOMIAL
 	}
 

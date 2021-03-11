@@ -33,7 +33,6 @@ public class EvalWorkflow {
 		//		Collection<Petrinet> pnCollection = new ArrayList<Petrinet>();
 		try {
 			logs = importLog("C:/Users/I519745/Desktop/Thesis/Thesis/EventLogs/");
-			//			logs = importLog("C:/Users/I519745/Desktop/Thesis/Thesis/structuredminer/logs/");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -53,7 +52,7 @@ public class EvalWorkflow {
 		}
 		for (XLog log : logs) {
 			index = index + 1;
-			System.out.println("Event Log " + index);				
+			System.out.println("Event Log " + index);
 
 			pd.applyHILP(context, log, eRes, index);
 
@@ -67,14 +66,11 @@ public class EvalWorkflow {
 				e.printStackTrace();
 			}
 
-			if (!log.getAttributes().get("name").toString().equals("9.Artificial4.xes")
-					&& !log.getAttributes().get("name").toString().equals("14.RoadTrafficManagement.xes")) {
-				try {
-					pd.applyStructuredMiner(context, log, eRes, index);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			try {
+				pd.applyStructuredMiner(context, log, eRes, index);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 
 		}
@@ -94,13 +90,13 @@ public class EvalWorkflow {
 	public static void createCSVFile(ArrayList<EvaluationResults> eRes) throws IOException {
 		FileWriter fw = new FileWriter("C:/Users/I519745/Desktop/Thesis/Thesis/evaluationresults.csv");
 		try (CSVPrinter printer = new CSVPrinter(fw,
-				CSVFormat.DEFAULT
-						.withHeader("Event Log", "Process Discovery Method", "Conformance Checking Method",
-								"Calculation Time ms", "Trace Fitness", "Max Fitness Cost", "Raw Fitness Cost", "Precision", "Generalization")
-						.withRecordSeparator("\n"))) {
+				CSVFormat.DEFAULT.withHeader("Event Log", "Process Discovery Method", "Conformance Checking Method",
+						"Calculation Time ms", "Trace Fitness", "Max Fitness Cost", "Raw Fitness Cost", "Precision",
+						"Generalization").withRecordSeparator("\n"))) {
 			for (EvaluationResults result : eRes) {
 				printer.printRecord(result.eventLog, result.processDisc, result.confCheck, result.calcTime,
-						result.traceFitness, result.maxFitnessCost, result.rawFitnessCost, result.precision, result.generalization);
+						result.traceFitness, result.maxFitnessCost, result.rawFitnessCost, result.precision,
+						result.generalization);
 			}
 			fw.flush();
 			fw.close();
